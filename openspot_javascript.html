@@ -5,7 +5,13 @@
 </head>
 <body>
 
+<!--get jquery from CDN-->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+<!--insert jssha256.js script-->
+<script src="jssha256.js"></script> 
+
+<!--main script-->
 <script>
 
 // change the ip adress into the ip adress of your openspot.
@@ -19,8 +25,15 @@ $(document).ready(function(){
 	$("button").click(function(){
 		$.getJSON("http://" + ip_adress + "/gettok.cgi", function(result) { 
 			$.each(result, function(i, token){
-				var token_password = token + password;			
-            			$("div").html(token_password);
+				var token_password = token + password;	
+				
+				//hash token and password with jssha256.js
+				SHA256_init();
+ 				SHA256_write(token_password);
+ 				digest = SHA256_finalize();  
+				digest_hex = array_to_hex_string(digest);
+									
+            			$("div").html(token_password + " " + digest_hex);
 			}); 
 		});                           
 	});
