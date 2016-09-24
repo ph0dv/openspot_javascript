@@ -20,7 +20,7 @@ $(document).ready(function(){
 		$.getJSON("http://" + ip_adress + "/gettok.cgi", function(result) { 
 			$.each(result, function(i, token){
 				var token_password = token + password;			
-            	$("div").html(token_password);
+            			$("div").html(token_password);
 			}); 
 		});                           
 	});
