@@ -16,24 +16,36 @@
 
 // change the ip adress into the ip adress of your openspot.
 var ip_adress = "192.168.2.20";
-
-// get the token from openspot concatenate the token and the password, and hash it.
-var token;
-var password = "passw0rd";
+// change the password into your openspot password.
+var password = "your_password";
+var get_token;
 
 $(document).ready(function(){
 	$("button").click(function(){
+	
+		// get the token from openspot concatenate the token and the password, and hash it.
 		$.getJSON("http://" + ip_adress + "/gettok.cgi", function(result) { 
-			$.each(result, function(i, token){
-				var token_password = token + password;	
+			$.each(result, function(i, get_token){
+				var token_password = get_token + password;	
 				
-				//hash token and password with jssha256.js
+				//hash token and password with jssha256.js.
 				SHA256_init();
  				SHA256_write(token_password);
- 				digest = SHA256_finalize();  
-				digest_hex = array_to_hex_string(digest);
+ 				fin_digest = SHA256_finalize();  
+				digest_hex = array_to_hex_string(fin_digest);
 									
             			$("div").html(token_password + " " + digest_hex);
+  
+				var post_json = 
+    				$.ajax({
+      				type: "POST",
+      				dataType: "json",
+      				url: "http://" + ip_adress + "/login.cgi", 
+      				data: JSON.stringify({ token: get_token, digest: digest_hex }),
+      				done: function(results) {
+      				}
+			        });	
+		        	        
 			}); 
 		});                           
 	});
