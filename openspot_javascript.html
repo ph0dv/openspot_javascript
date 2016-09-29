@@ -19,6 +19,7 @@ var ip_adress = "192.168.2.20";
 // change the password into your openspot password.
 var password = "openspot";
 var get_token;
+var get_success;
 
 $(document).ready(function(){
 	$("button").click(function(){
@@ -36,14 +37,23 @@ $(document).ready(function(){
 									
 				var post_json = 
 				$.ajax({
-      				type: "POST",
-      				dataType: "json",
-      				url: "http://" + ip_adress + "/login.cgi", 
-      				data: JSON.stringify({ token: get_token, digest: digest_hex }),
-      				success: function(response) {
-      				$("#div_token").html("Token: " + get_token); 
-      				$("#div_SHA256").html("SHA256: " + digest_hex);
-      				}   		
+      					type: "POST",
+      					dataType: "json",
+      					url: "http://" + ip_adress + "/login.cgi", 
+      					data: JSON.stringify({ token: get_token, digest: digest_hex }),
+      					success: function(response) {
+      						$.each(response, function(i, get_success){     				
+      							$("#div_token").html("Token: " + get_token); 
+      							$("#div_SHA256").html("SHA256: " + digest_hex);
+      								if (i.indexOf('success') >= 0){
+      									$("#div_Success").html("Success: " + get_success);
+      								}
+      								else
+      								if (i.indexOf('hostname') >= 0){
+      									$("#div_Hostname").html("Hostname: " + get_success);
+      								}
+      						});   		
+					}
 				});		        	        
 			}); 
 		});                           
@@ -54,6 +64,7 @@ $(document).ready(function(){
 <button>Connect RF Shark</button>
 <div id="div_token"></div>
 <div id="div_SHA256"></div>
-
+<div id="div_Success"></div>
+<div id="div_Hostname"></div>
 </body>
 </html>
