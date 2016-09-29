@@ -14,11 +14,10 @@
 
 <!--main script-->
 <script>
-
 // change the ip adress into the ip adress of your openspot.
 var ip_adress = "192.168.2.20";
 // change the password into your openspot password.
-var password = "your_password";
+var password = "openspot";
 var get_token;
 
 $(document).ready(function(){
@@ -35,27 +34,26 @@ $(document).ready(function(){
  				fin_digest = SHA256_finalize();  
 				digest_hex = array_to_hex_string(fin_digest);
 									
-            			$("div").html(token_password + " " + digest_hex);
-  
 				var post_json = 
-    				$.ajax({
+				$.ajax({
       				type: "POST",
       				dataType: "json",
       				url: "http://" + ip_adress + "/login.cgi", 
       				data: JSON.stringify({ token: get_token, digest: digest_hex }),
-      				done: function(results) {
-      				}
-			        });	
-		        	        
+      				success: function(response) {
+      				$("#div_token").html("Token: " + get_token); 
+      				$("#div_SHA256").html("SHA256: " + digest_hex);
+      				}   		
+				});		        	        
 			}); 
 		});                           
 	});
 });
-
 </script>
 
 <button>Connect RF Shark</button>
-<div></div>
+<div id="div_token"></div>
+<div id="div_SHA256"></div>
 
 </body>
 </html>
