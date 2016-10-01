@@ -3,6 +3,20 @@
 <head>
 <title>Openspot</title> 
 <meta charset="utf-8">
+<style>
+.button {
+    background-color: #008CBA;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+</style>
 </head>
 <body>
 
@@ -22,7 +36,7 @@ var get_token;
 var get_success;
 
 $(document).ready(function(){
-	$("button").click(function(){
+	$("#button_connect").click(function(){
 	
 		// get the token from openspot concatenate the token and the password, and hash it.
 		$.getJSON("http://" + ip_adress + "/gettok.cgi", function(result) { 
@@ -37,34 +51,84 @@ $(document).ready(function(){
 									
 				var post_json = 
 				$.ajax({
-      					type: "POST",
-      					dataType: "json",
-      					url: "http://" + ip_adress + "/login.cgi", 
-      					data: JSON.stringify({ token: get_token, digest: digest_hex }),
-      					success: function(response) {
-      						$.each(response, function(i, get_success){     				
-      							$("#div_token").html("Token: " + get_token); 
-      							$("#div_SHA256").html("SHA256: " + digest_hex);
-      								if (i.indexOf('success') >= 0){
-      									$("#div_Success").html("Success: " + get_success);
-      								}
-      								else
-      								if (i.indexOf('hostname') >= 0){
-      									$("#div_Hostname").html("Hostname: " + get_success);
-      								}
-      						});   		
-					}
-				});		        	        
-			}); 
-		});                           
-	});
-});
+      				type: "POST",
+      				dataType: "json",
+      				url: "http://" + ip_adress + "/login.cgi", 
+      				data: JSON.stringify({ token: get_token, digest: digest_hex }),
+      				success: function(response) {
+      					$.each(response, function(i, get_success){     				
+      						$("#div_token").html("Token: " + get_token); 
+      						$("#div_SHA256").html("SHA256: " + digest_hex);     						
+      						if (i.indexOf('success') >= 0){      							
+      							if (get_success == 1){
+      								status_success = "connected to openspot. code " + get_success; 							
+      							} // end status connected   							
+      							else{
+      								status_success = "not connected to openspot. code " + get_success;
+      							} // end status not connected    														
+	  						$("#div_Success").html("Status: " + status_success);
+      						} //end statement success
+      						else
+      						if (i.indexOf('hostname') >= 0){
+      							$("#div_Hostname").html("Hostname: " + get_success);
+      						       						
+      							$("#button_connect_DMR").click(function(){	     						
+									$.ajax({
+    									type: "POST",
+  										dataType: "json",
+      									url: "http://" + ip_adress + "/connector.cgi", 
+      									data: JSON.stringify({ token: get_token, digest: digest_hex, new_connector: 2 }),
+      									success: function(succes_DMR) {
+      									$("#status_connector").html("Connector: DMR Brandmeister");
+      									} //end success POST DMR button	
+									}); //end POST DMR button								
+								}); //end DMR button
+
+      							$("#button_connect_FCS").click(function(){	     						
+									$.ajax({
+    									type: "POST",
+  										dataType: "json",
+      									url: "http://" + ip_adress + "/connector.cgi", 
+      									data: JSON.stringify({ token: get_token, digest: digest_hex, new_connector: 5 }),
+      									success: function(succes_DMR) {
+      									$("#status_connector").html("Connector: FCS Reflector");
+      									} //end success POST FCS button	
+									}); // end POST FCS button								
+								}); // en FCS button
+
+      							$("#button_connect_YSF").click(function(){	     						
+									$.ajax({
+    									type: "POST",
+  										dataType: "json",
+      									url: "http://" + ip_adress + "/connector.cgi", 
+      									data: JSON.stringify({ token: get_token, digest: digest_hex, new_connector: 10 }),
+      									success: function(succes_DMR) {
+      									$("#status_connector").html("Connector: YSF Reflector");
+      									} //end success POST YSF button	
+									}); //end POST YSF button								
+								}); //end YSF button
+							} //end statement hostname     							    						    							
+      					}); //ens succes POST token and SHA256		   		
+					} //end POST json token and SHA256
+				});	//end each result	        	        
+			}); //end result get json
+		}); //end GET json token                       
+	}); //end button connect
+}); //end document ready
 </script>
 
-<button>Connect RF Shark</button>
+<button class="button" id="button_connect">Connect to Openspot</button>
+<hr>
 <div id="div_token"></div>
 <div id="div_SHA256"></div>
-<div id="div_Success"></div>
+<div id="div_Success">Status: not connected</div>
 <div id="div_Hostname"></div>
+<hr>
+<button class="button" id="button_connect_DMR">DMR Brandmeister</button>
+<button class="button" id="button_connect_FCS">FCS Reflector</button>
+<button class="button" id="button_connect_YSF">YSF Reflector</button>
+<hr>
+<div id="status_connector"></div>
+
 </body>
 </html>
