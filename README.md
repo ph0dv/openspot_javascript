@@ -1,5 +1,7 @@
 # openspot_javascript
-This is a simple javascript HTML page for communication with the RF Shark openspot. The script is a remote control from your browser to swich between C4FM and DMR reflectors. At this moment this script only works in Safari because of a Cross Domain error (CORS). This wil be fixed in a feature firmware release of the openspot. Just download the folder. Change the ipadress and password in the openspot_javascript.html file. Open openspot_javascript.html in Safari.
+This is a simple javascript HTML page for communication with the RF Shark openspot. The script is a remote control from your browser to swich between C4FM and DMR reflectors. Just download the folder. Change the ipadress and password in the openspot_javascript.html file. Open openspot_javascript.html in Safari.
+
+This script only works from Firmware release 0064 of the openspot.
 
 This javascript is for experimentel use only. Use is on own risk.
 
