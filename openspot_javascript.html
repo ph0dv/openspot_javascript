@@ -4,8 +4,45 @@
 <title>Openspot</title> 
 <meta charset="utf-8">
 <style>
+@font-face {
+    font-family: MavenPro-Regular;
+    src: url(MavenPro-Regular.ttf);
+}
+
+body {
+	font-family: MavenPro-Regular;
+	color: #5c5c5c;
+}
+
+div.header {
+	background-color: #005eb8;
+	color: white;
+	margin: 25px;
+	padding: 10px;
+	padding-left: 25px;
+}
+
+div.wrapper-01 {
+	background-color: #e6e6e6;
+	margin: 25px;
+	padding: 25px;
+	padding-top: 10px;
+}
+
+div.wrapper-02 {
+	background-color: #e6e6e6;
+	margin: 5px;
+	padding: 5px;
+}
+
+div.wrapper-03 {
+	background-color: #ffffff;
+	margin: 25px;
+	padding: 0px;
+}
+
 .button {
-    background-color: #008CBA;
+    background-color: #005eb8;
     border: none;
     color: white;
     padding: 15px 32px;
@@ -78,9 +115,19 @@ $(document).ready(function(){
   										dataType: "json",
       									url: "http://" + ip_adress + "/connector.cgi", 
       									data: JSON.stringify({ token: get_token, digest: digest_hex, new_connector: 2 }),
-      									success: function(succes_DMR) {
-      									$("#status_connector").html("Connector: DMR Brandmeister");
-      									} //end success POST DMR button	
+      										success: function(success_DMR) {
+      											$.each(success_DMR, function(i, get_success_DMR){
+      												if (i.indexOf('active_connector') >= 0){      							
+      													if (get_success_DMR == 2){
+      														$("#status_connector").html("Connector: DMR Homebrew");
+      													} //end if success == 2
+      													else
+      													{ //begin else
+      														$("#status_connector").html("Connector: Not connected");
+      													} //end else    													
+      												} //end if
+      											}); //end success
+      										} //end success POST DMR button	
 									}); //end POST DMR button								
 								}); //end DMR button
 
@@ -90,11 +137,21 @@ $(document).ready(function(){
   										dataType: "json",
       									url: "http://" + ip_adress + "/connector.cgi", 
       									data: JSON.stringify({ token: get_token, digest: digest_hex, new_connector: 5 }),
-      									success: function(succes_DMR) {
-      									$("#status_connector").html("Connector: FCS Reflector");
+      									success: function(success_FCS) {
+      											$.each(success_FCS, function(i, get_success_FCS){
+      												if (i.indexOf('active_connector') >= 0){      							
+      													if (get_success_FCS == 5){
+      														$("#status_connector").html("Connector: FCS Reflector");
+      													} //end if success == 5
+      													else
+      													{ //begin else
+      														$("#status_connector").html("Connector: Not connected");
+      													} //end else     													
+      												} //end if
+      											}); //end success
       									} //end success POST FCS button	
-									}); // end POST FCS button								
-								}); // en FCS button
+									}); //end POST FCS button								
+								}); //end FCS button
 
       							$("#button_connect_YSF").click(function(){	     						
 									$.ajax({
@@ -102,11 +159,22 @@ $(document).ready(function(){
   										dataType: "json",
       									url: "http://" + ip_adress + "/connector.cgi", 
       									data: JSON.stringify({ token: get_token, digest: digest_hex, new_connector: 10 }),
-      									success: function(succes_DMR) {
-      									$("#status_connector").html("Connector: YSF Reflector");
+      									success: function(success_YSF) {
+      											$.each(success_YSF, function(i, get_success_YSF){
+      												if (i.indexOf('active_connector') >= 0){      							
+      													if (get_success_YSF == 10){
+      														$("#status_connector").html("Connector: YSF Reflector");     														
+      													} //end if success == 10
+      													else
+      													{ //begin else
+      														$("#status_connector").html("Connector: Not connected");
+      													} //end else     													
+      												} //end if
+      											}); //end success
       									} //end success POST YSF button	
 									}); //end POST YSF button								
 								}); //end YSF button
+												
 							} //end statement hostname     							    						    							
       					}); //ens succes POST token and SHA256		   		
 					} //end POST json token and SHA256
@@ -116,19 +184,25 @@ $(document).ready(function(){
 	}); //end button connect
 }); //end document ready
 </script>
-
-<button class="button" id="button_connect">Connect to Openspot</button>
-<hr>
-<div id="div_token"></div>
-<div id="div_SHA256"></div>
-<div id="div_Success">Status: not connected</div>
-<div id="div_Hostname"></div>
-<hr>
-<button class="button" id="button_connect_DMR">DMR Brandmeister</button>
-<button class="button" id="button_connect_FCS">FCS Reflector</button>
-<button class="button" id="button_connect_YSF">YSF Reflector</button>
-<hr>
-<div id="status_connector"></div>
-
+<div class="header"><h1>openSPOT</h1></div>
+<div class="wrapper-01">
+	<h1>Remote Control</h1>
+	<button class="button" id="button_connect">Connect to Openspot</button>
+	<div class="wrapper-02">
+		<div id="div_token"></div>
+		<div id="div_SHA256"></div>
+		<div id="div_Success">Status: not connected</div>
+		<div id="div_Hostname"></div>
+	</div>
+	<button class="button" id="button_connect_DMR">DMR Homebrew</button>
+	<button class="button" id="button_connect_FCS">FCS Reflector</button>
+	<button class="button" id="button_connect_YSF">YSF Reflector</button>
+	<div class="wrapper-02">
+		<div id="status_connector"></div>
+	</div>
+</div>
+<div class="wrapper-03">
+<p>PH0DV Github: https://github.com/ph0dv/openspot_javascript</p>
+</div>
 </body>
 </html>
