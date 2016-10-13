@@ -3,14 +3,11 @@
 <head>
 <title>Openspot</title> 
 <meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css?family=Comfortaa" rel="stylesheet">
 <style>
-@font-face {
-    font-family: MavenPro-Regular;
-    src: url(MavenPro-Regular.ttf);
-}
 
 body {
-	font-family: MavenPro-Regular;
+	font-family: 'Comfortaa';
 	color: #5c5c5c;
 }
 
@@ -74,7 +71,7 @@ var get_success;
 
 $(document).ready(function(){
 	$("#button_connect").click(function(){
-	
+		
 		// get the token from openspot concatenate the token and the password, and hash it.
 		$.getJSON("http://" + ip_adress + "/gettok.cgi", function(result) { 
 			$.each(result, function(i, get_token){
@@ -186,8 +183,9 @@ $(document).ready(function(){
 </script>
 <div class="header"><h1>openSPOT</h1></div>
 <div class="wrapper-01">
-	<h1>Remote Control</h1>
+	<h1>Remote Control</h1>	
 	<button class="button" id="button_connect">Connect to Openspot</button>
+
 	<div class="wrapper-02">
 		<div id="div_token"></div>
 		<div id="div_SHA256"></div>
