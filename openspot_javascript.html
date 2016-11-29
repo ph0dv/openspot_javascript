@@ -110,7 +110,7 @@ $(document).ready(function(){
       							$("#button_connect_DMR").click(function(){	     						
 									$.ajax({
     									type: "POST",
-  										dataType: "json",
+  									dataType: "json",
       									url: "http://" + ip_adress + "/connector.cgi", 
       									data: JSON.stringify({ token: get_token, digest: digest_hex, new_connector: 2 }),
       										success: function(success_DMR) {
@@ -132,7 +132,7 @@ $(document).ready(function(){
       							$("#button_connect_FCS").click(function(){	     						
 									$.ajax({
     									type: "POST",
-  										dataType: "json",
+  									dataType: "json",
       									url: "http://" + ip_adress + "/connector.cgi", 
       									data: JSON.stringify({ token: get_token, digest: digest_hex, new_connector: 5 }),
       									success: function(success_FCS) {
@@ -154,7 +154,7 @@ $(document).ready(function(){
       							$("#button_connect_YSF").click(function(){	     						
 									$.ajax({
     									type: "POST",
-  										dataType: "json",
+  									dataType: "json",
       									url: "http://" + ip_adress + "/connector.cgi", 
       									data: JSON.stringify({ token: get_token, digest: digest_hex, new_connector: 10 }),
       									success: function(success_YSF) {
@@ -172,7 +172,22 @@ $(document).ready(function(){
       									} //end success POST YSF button	
 									}); //end POST YSF button								
 								}); //end YSF button
-												
+															
+							setInterval(function(){ 
+    									$.ajax({
+    									type: "POST",
+  									dataType: "json",
+      									url: "http://" + ip_adress + "/status.cgi", 
+      									data: JSON.stringify({ token: get_token, digest: digest_hex}),
+									success: function(success_status) {											     											
+      											$.each(success_status, function(i, connected_to){
+												var get_connected_to = connected_to;	     											    							
+												$("#talkgroup").html("Connect to: " + get_connected_to);											
+											});//end succes function																					
+										} //end success POST status
+									}); //end POST status     														
+								}, 5000);							
+							
 							} //end statement hostname     							    						    							
       					}); //ens succes POST token and SHA256		   		
 					} //end POST json token and SHA256
