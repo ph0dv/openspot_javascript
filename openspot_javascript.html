@@ -49,7 +49,7 @@ div.wrapper-03 {
     font-size: 16px;
     margin: 4px 2px;
     cursor: pointer;
-}
+}	
 </style>
 </head>
 <body>
@@ -173,18 +173,47 @@ $(document).ready(function(){
 									}); //end POST YSF button								
 								}); //end YSF button
 															
-							setInterval(function(){ 
-    									$.ajax({
-    									type: "POST",
+								setInterval(function(){ 
+    								$.ajax({
+    								type: "POST",
   									dataType: "json",
-      									url: "http://" + ip_adress + "/status.cgi", 
-      									data: JSON.stringify({ token: get_token, digest: digest_hex}),
+      								url: "http://" + ip_adress + "/status.cgi", 
+      								data: JSON.stringify({ token: get_token, digest: digest_hex}),
 									success: function(success_status) {											     											
-      											$.each(success_status, function(i, connected_to){
-												var get_connected_to = connected_to;	     											    							
-												$("#talkgroup").html("Connect to: " + get_connected_to);											
-											});//end succes function																					
-										} //end success POST status
+      									$.each(success_status, function(i, connected_to){
+										var get_connected_to = connected_to;	     											    							
+										$("#talkgroup").html("Connect to: " + get_connected_to);											
+										});//end succes function										
+										$.each(success_status, function(i, status){
+										var get_status_openspot = status;
+										if (get_status_openspot == 0){
+      										$("#status_openspot").html("Status: Standby");     														
+      									} //end if
+										if (get_status_openspot == 1){
+      										$("#status_openspot").html("Status: In call");     														
+      									} //end if
+										if (get_status_openspot == 2){
+      										$("#status_openspot").html("Status: Connector not set");     														
+      									} //end if
+										if (get_status_openspot == 3){
+      										$("#status_openspot").html("Status: Connector connecting");     														
+      									} //end if
+										if (get_status_openspot == 4){
+      										$("#status_openspot").html("Modem initializing");     														
+      									} //end if
+										if (get_status_openspot == 5){
+      										$("#status_openspot").html("Modem disconnected");     														
+      									} //end if
+      									if (get_status_openspot == 6){
+      										$("#status_openspot").html("Modem HW/SW version mismatch");     														
+      									} //end if
+										if (get_status_openspot == 7){
+      										$("#status_openspot").html("Modem firmware upgrade in progress");     														
+      									} //end if	     											    							
+										$("#talkgroup").html("Connect to: " + get_connected_to);											
+										});//end succes function	
+																															
+									} //end success POST status
 									}); //end POST status     														
 								}, 5000);							
 							
@@ -219,6 +248,7 @@ $(document).ready(function(){
 	<div class="wrapper-02">
 		<div id="status_connector"></div>
 		<div id="talkgroup"></div>
+		<div id="status_openspot"></div>
 	</div>
 </div>
 <div class="wrapper-03">
