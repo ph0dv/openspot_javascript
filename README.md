@@ -1,4 +1,7 @@
 # openspot_javascript
+
+Note: Login procedure of openspot is changed. This script don't work anymore.
+
 This is a simple javascript HTML page for communication with the RF Shark openspot. The script is a remote control from your browser to swich between C4FM and DMR reflectors. Just download the folder. Change the ipadress and password in the openspot_javascript.html file. Open openspot_javascript.html in your browser. Connect to the openspot by pressing the button and switch between reflectors.
 
 This script only works from openspot firmware release 0064 or higher.
