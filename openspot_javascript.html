@@ -9,6 +9,17 @@
 body {
 	font-family: 'Comfortaa';
 	color: #5c5c5c;
+	padding: 10px;
+}
+
+div.login {
+	background-color: #ffffff;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	margin-top: -250px;
+	margin-left: -250px;
+	width: 500px; 
 }
 
 div.header {
@@ -28,17 +39,42 @@ div.wrapper-01 {
 
 div.wrapper-02 {
 	background-color: #e6e6e6;
-	margin: 5px;
+	margin: 10px;
+	margin-bottom: 60px;
 	padding: 5px;
-}
-
-div.wrapper-03 {
-	background-color: #ffffff;
-	margin: 25px;
-	padding: 0px;
+	text-align: left;
 }
 
 .button {
+    background-color: #005eb8;
+    position: fixed;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 20px 0px;
+    cursor: pointer;
+    outline: none;
+}	
+
+.button:hover {
+    background-color: DeepSkyBlue;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 20px 0px;
+    cursor: pointer;
+    outline: none;
+}
+
+.button:active {
     background-color: #005eb8;
     border: none;
     color: white;
@@ -47,9 +83,11 @@ div.wrapper-03 {
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
-    margin: 4px 2px;
+    margin: 20px 0px;
     cursor: pointer;
+    outline: none;
 }	
+
 </style>
 </head>
 <body>
@@ -62,197 +100,184 @@ div.wrapper-03 {
 
 <!--main script-->
 <script>
+
 var ip_adress;
 var password;
 var get_token;
 var get_success;
+var status_hostname;
+var status_jwt;
 
 $(document).ready(function(){
-	$("#button_connect").click(function(){
-	
-	var ip_adress = document.forms["credentials"]["ipadress"].value;
-	var password = document.forms["credentials"]["password"].value;
+$("#button_connect").click(function(){
+
+var ip_adress = document.forms["credentials"]["ipadress"].value;
+var password = document.forms["credentials"]["password"].value;
+
+//#1 get the token from openspot concatenate the token and the password, and hash it.
+$.getJSON("http://" + ip_adress + "/gettok.cgi", function(result) { 
+	//#2 get result
+	$.each(result, function(i, get_token){
+		var token_password = get_token + password;	
 		
-		// get the token from openspot concatenate the token and the password, and hash it.
-		$.getJSON("http://" + ip_adress + "/gettok.cgi", function(result) { 
-			$.each(result, function(i, get_token){
-				var token_password = get_token + password;	
-				
-				//hash token and password with jssha256.js.
-				SHA256_init();
- 				SHA256_write(token_password);
- 				fin_digest = SHA256_finalize();  
-				digest_hex = array_to_hex_string(fin_digest);
-									
-				var post_json = 
-				$.ajax({
-      				type: "POST",
-      				dataType: "json",
-      				url: "http://" + ip_adress + "/login.cgi", 
-      				data: JSON.stringify({ token: get_token, digest: digest_hex }),
-      				success: function(response) {
-      					$.each(response, function(i, get_success){     				
-      						$("#div_token").html("Token: " + get_token); 
-      						$("#div_SHA256").html("SHA256: " + digest_hex);     						
-      						if (i.indexOf('success') >= 0){      							
-      							if (get_success == 1){
-      								status_success = "connected to openspot. code " + get_success; 							
-      							} // end status connected   							
-      							else{
-      								status_success = "not connected to openspot. Invalid password. code " + get_success;
-      							} // end status not connected    														
-	  						$("#div_Success").html("Status: " + status_success);
-      						} //end statement success
-      						else
-      						if (i.indexOf('hostname') >= 0){
-      							$("#div_Hostname").html("Hostname: " + get_success);
-      						       						
-      							$("#button_connect_DMR").click(function(){	     						
-									$.ajax({
-    									type: "POST",
-  									dataType: "json",
-      									url: "http://" + ip_adress + "/connector.cgi", 
-      									data: JSON.stringify({ token: get_token, digest: digest_hex, new_connector: 2 }),
-      										success: function(success_DMR) {
-      											$.each(success_DMR, function(i, get_success_DMR){
-      												if (i.indexOf('active_connector') >= 0){      							
-      													if (get_success_DMR == 2){
-      														$("#status_connector").html("Connector: DMR Homebrew");
-      													} //end if success == 2
-      													else
-      													{ //begin else
-      														$("#status_connector").html("Connector: Not connected");
-      													} //end else    													
-      												} //end if
-      											}); //end success
-      										} //end success POST DMR button	
-									}); //end POST DMR button								
-								}); //end DMR button
+		//#2 hash token and password with jssha256.js.
+		SHA256_init();
+ 		SHA256_write(token_password);
+ 		fin_digest = SHA256_finalize();  
+		digest_hex = array_to_hex_string(fin_digest);
+		
+		//#3login to the openspot with the token and digest
+		var post_json = 
+		$.ajax({
+      		type: "POST",
+      		dataType: "json",
+      		url: "http://" + ip_adress + "/login.cgi", 
+      		data: JSON.stringify({ token: get_token, digest: digest_hex }),
+      		//#4 if success
+      		success: function(response) {
+      			//#5 respons
+      			$.each(response, function(i, get_success){ 
+      				//#6 statement     					    				
+      				if (i.indexOf('hostname') >= 0){ 
+      					status_hostname = get_success;     														
+      					status_success = "Connected to " + status_hostname;      												
+      					$("#div_Success").html(status_success);
+      				}//#6
+      				//#7 statement     					    				
+      				if (i.indexOf('jwt') >= 0){    													
+      					status_jwt = get_success; 
+      					document.getElementById("div_login").style.display = "none";
+      					document.getElementById("div_logedin").innerHTML = '<div class="header"><h1>openSPOT</h1></div><div class="wrapper-01"><h1>Remote Connect</h1><div class="wrapper-02"><div id="div_status"></div><div id="div_connector"></div><div id="div_connected_to"</div></div></div>';								
+      				}//#7
+     				
+      				setTimeout(function run() {
+  				
+      				   	//#9 GET			
+    					$.ajax({
+    						url: "http://" + ip_adress + "/status.cgi",
+    						type: "GET",  
+    						headers: { "Authorization": 'Bearer ' + status_jwt },	
+    						//#10 if success  					
+    						success: function(success_status) {	
+    							//#11 respons
+    							$.each(success_status, function(i, get_status){   							
+    								//#12 statement   					    				
+      								if (i.indexOf('status') >= 0){     								
+      									if (get_status == 0){											
+      										document.getElementById("div_status").style.color = "green";
+      										$("#div_status").html("Standby");     														
+      									} //end if
+										if (get_status == 1){										
+											document.getElementById("div_status").style.color = "red";
+      										$("#div_status").html("In call");     														
+      									} //end if
+										if (get_status == 2){											
+											document.getElementById("div_status").style.color = "#5c5c5c";
+      										$("#div_status").html("Connector not set");     														
+      									} //end if
+										if (get_status == 3){										
+											document.getElementById("div_status").style.color = "#5c5c5c";
+      										$("#div_status").html("Connector connecting");     														
+      									} //end if
+										if (get_status == 4){											
+											document.getElementById("div_status").style.color = "#5c5c5c";
+      										$("#div_status").html("Modem initializing");     														
+      									} //end if
+										if (get_status == 5){
+											document.getElementById("div_status").style.color = "#5c5c5c";
+      										$("#div_status").html("Modem disconnected");     														
+      									} //end if
+      									if (get_status == 6){
+      										document.getElementById("div_status").style.color = "#5c5c5c";
+      										$("#div_status").html("Modem HW/SW version mismatch");     														
+      									} //end if
+										if (get_status == 7){
+											document.getElementById("div_status").style.color = "#5c5c5c";
+      										$("#div_status").html("Modem firmware upgrade in progress");     														
+      									} //end if	     				 					     									
+      								}//#12
+    								//#13 statement   					    				
+      								if (i.indexOf('connector') >= 0){
+      									if (get_status == 0){
+      										document.getElementById("div_connector").style.color = "#5c5c5c";
+      										$("#div_connector").html("No connector set");     														
+      									} //end if
+      									if (get_status == 1){
+      										document.getElementById("div_connector").style.color = "#5c5c5c";
+      										$("#div_connector").html("DMR plus");     														
+      									} //end if
+      									if (get_status == 2){
+      										document.getElementById("div_connector").style.color = "#5c5c5c";
+      										$("#div_connector").html("Homebrew");     														
+      									} //end if
+      									if (get_status == 3){
+      										document.getElementById("div_connector").style.color = "#5c5c5c";
+      										$("#div_connector").html("TS Repeat");     														
+      									} //end if
+      									if (get_status == 4){
+      										document.getElementById("div_connector").style.color = "#5c5c5c";
+      										$("#div_connector").html("DCS/XLX");     														
+      									} //end if
+      									if (get_status == 5){
+      										document.getElementById("div_connector").style.color = "#5c5c5c";
+      										$("#div_connector").html("FCS");     														
+      									} //end if
+      									if (get_status == 6){
+      										document.getElementById("div_connector").style.color = "#5c5c5c";
+      										$("#div_connector").html("SharkRF IP Connector Client");     														
+      									} //end if
+      									if (get_status == 7){
+      										document.getElementById("div_connector").style.color = "#5c5c5c";
+      										$("#div_connector").html("SharkRF IP Connector Server");     														
+      									} //end if
+      									if (get_status == 8){
+      										document.getElementById("div_connector").style.color = "#5c5c5c";
+      										$("#div_connector").html("DMR demodulation mode auto calibration");     														
+      									} //end if
+      									if (get_status == 9){
+      										document.getElementById("div_connector").style.color = "#5c5c5c";
+      										$("#div_connector").html("REF/XRF");     														
+      									} //end if
+      									if (get_status == 10){
+      										document.getElementById("div_connector").style.color = "#5c5c5c";
+      										$("#div_connector").html("YSF Reflector");
+      									} //end if
+      								}//#13
+      								//#14 statement   					    				
+      								if (i.indexOf('connected_to') >= 0){
+      										document.getElementById("div_connected_to").style.color = "#5c5c5c";
+      										$("#div_connected_to").html(get_status); 
+      								}//#14						
+      							});//#11
+							} //#10
+    		 			});//#9	
+    		 		setTimeout(run, 2000);
+					}, 2000);
+      			});//#5
+      		} //#4
+		});//#3
+	});//#2
+});//#1
 
-      							$("#button_connect_FCS").click(function(){	     						
-									$.ajax({
-    									type: "POST",
-  									dataType: "json",
-      									url: "http://" + ip_adress + "/connector.cgi", 
-      									data: JSON.stringify({ token: get_token, digest: digest_hex, new_connector: 5 }),
-      									success: function(success_FCS) {
-      											$.each(success_FCS, function(i, get_success_FCS){
-      												if (i.indexOf('active_connector') >= 0){      							
-      													if (get_success_FCS == 5){
-      														$("#status_connector").html("Connector: FCS Reflector");
-      													} //end if success == 5
-      													else
-      													{ //begin else
-      														$("#status_connector").html("Connector: Not connected");
-      													} //end else     													
-      												} //end if
-      											}); //end success
-      									} //end success POST FCS button	
-									}); //end POST FCS button								
-								}); //end FCS button
-
-      							$("#button_connect_YSF").click(function(){	     						
-									$.ajax({
-    									type: "POST",
-  									dataType: "json",
-      									url: "http://" + ip_adress + "/connector.cgi", 
-      									data: JSON.stringify({ token: get_token, digest: digest_hex, new_connector: 10 }),
-      									success: function(success_YSF) {
-      											$.each(success_YSF, function(i, get_success_YSF){
-      												if (i.indexOf('active_connector') >= 0){      							
-      													if (get_success_YSF == 10){
-      														$("#status_connector").html("Connector: YSF Reflector");     														
-      													} //end if success == 10
-      													else
-      													{ //begin else
-      														$("#status_connector").html("Connector: Not connected");
-      													} //end else     													
-      												} //end if
-      											}); //end success
-      									} //end success POST YSF button	
-									}); //end POST YSF button								
-								}); //end YSF button
-															
-								setInterval(function(){ 
-    								$.ajax({
-    								type: "POST",
-  									dataType: "json",
-      								url: "http://" + ip_adress + "/status.cgi", 
-      								data: JSON.stringify({ token: get_token, digest: digest_hex}),
-									success: function(success_status) {											     											
-      									$.each(success_status, function(i, connected_to){
-										var get_connected_to = connected_to;	     											    							
-										$("#talkgroup").html("Connect to: " + get_connected_to);											
-										});//end succes function										
-										$.each(success_status, function(i, status){
-										var get_status_openspot = status;
-										if (get_status_openspot == 0){
-      										$("#status_openspot").html("Status: Standby");     														
-      									} //end if
-										if (get_status_openspot == 1){
-      										$("#status_openspot").html("Status: In call");     														
-      									} //end if
-										if (get_status_openspot == 2){
-      										$("#status_openspot").html("Status: Connector not set");     														
-      									} //end if
-										if (get_status_openspot == 3){
-      										$("#status_openspot").html("Status: Connector connecting");     														
-      									} //end if
-										if (get_status_openspot == 4){
-      										$("#status_openspot").html("Modem initializing");     														
-      									} //end if
-										if (get_status_openspot == 5){
-      										$("#status_openspot").html("Modem disconnected");     														
-      									} //end if
-      									if (get_status_openspot == 6){
-      										$("#status_openspot").html("Modem HW/SW version mismatch");     														
-      									} //end if
-										if (get_status_openspot == 7){
-      										$("#status_openspot").html("Modem firmware upgrade in progress");     														
-      									} //end if	     											    							
-										$("#talkgroup").html("Connect to: " + get_connected_to);											
-										});//end succes function	
-																															
-									} //end success POST status
-									}); //end POST status     														
-								}, 5000);							
-							
-							} //end statement hostname     							    						    							
-      					}); //ens succes POST token and SHA256		   		
-					} //end POST json token and SHA256
-				});	//end each result	        	        
-			}); //end result get json
-		}); //end GET json token                       
-	}); //end button connect
+}); //end button connect
 }); //end document ready
 </script>
-<div class="header"><h1>openSPOT</h1></div>
-<div class="wrapper-01">
-	<h1>Remote Control</h1>	
-	<div class="wrapper-02">
-	<form name="credentials">
-		IP adress : <input type="text" name="ipadress">
-		Password : <input type="password" name="password">
-	</form>	
-	</div>
-	<button class="button" id="button_connect">Connect to Openspot</button>
-	<div class="wrapper-02">
-		<div id="div_token"></div>
-		<div id="div_SHA256"></div>
-		<div id="div_Success">Status: not connected</div>
-		<div id="div_Hostname"></div>
-	</div>
-	<button class="button" id="button_connect_DMR">DMR Homebrew</button>
-	<button class="button" id="button_connect_FCS">FCS Reflector</button>
-	<button class="button" id="button_connect_YSF">YSF Reflector</button>
-	<div class="wrapper-02">
-		<div id="status_connector"></div>
-		<div id="talkgroup"></div>
-		<div id="status_openspot"></div>
+
+<div id="div_login" class="login">
+	<div class="header"><h1>openSPOT</h1></div>
+	<div class="wrapper-01">
+		<div class="wrapper-02">
+			<form name="credentials">
+				IP adress<br><input type="text" name="ipadress" value="openspot.local"><br><br>
+				Password<br><input type="password" name="password" value="openspot"><br>		
+			</form>	
+			<button class="button" id="button_connect">Connect to Openspot</button>			
+		</div>		
 	</div>
 </div>
-<div class="wrapper-03">
-<p>PH0DV Github: https://github.com/ph0dv/openspot_javascript</p>
+
+<div id="div_logedin">
 </div>
+
 </body>
-</html>
+</html>	
